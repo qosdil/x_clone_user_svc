@@ -4,16 +4,21 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	app "x_clone_user_srv"
 	config "x_clone_user_srv/config"
+	grpcSvc "x_clone_user_srv/grpc/service"
+	transport "x_clone_user_srv/transports"
 
+	gokitGrpc "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-kit/log"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -32,7 +37,8 @@ func main() {
 	db := client.Database(config.GetEnv("DB_NAME"))
 	repo := app.NewMongoRepository(db)
 	var (
-		httpAddr = flag.String("http.addr", ":"+config.GetEnv("PORT"), "HTTP listen address")
+		httpAddr = flag.String("http.addr", ":"+config.GetEnv("HTTP_PORT"), "HTTP listen address")
+		grpcAddr = flag.String("grpc-addr", ":"+config.GetEnv("GRPC_PORT"), "gRPC listen address")
 	)
 	flag.Parse()
 
@@ -51,7 +57,7 @@ func main() {
 
 	var h http.Handler
 	{
-		h = app.MakeHTTPHandler(s, log.With(logger, "component", "HTTP"))
+		h = transport.MakeHTTPHandler(s, log.With(logger, "component", "HTTP"))
 	}
 
 	errs := make(chan error)
@@ -64,6 +70,25 @@ func main() {
 	go func() {
 		logger.Log("transport", "HTTP", "addr", *httpAddr)
 		errs <- http.ListenAndServe(*httpAddr, h)
+	}()
+
+	// The gRPC listener mounts the Gokit gRPC server that we created
+	grpcListener, err := net.Listen("tcp", *grpcAddr)
+	if err != nil {
+		logger.Log("transport", "gRPC", "during", "Listen", "err", err)
+		os.Exit(1)
+	}
+
+	var (
+		baseServer = grpc.NewServer(grpc.UnaryInterceptor(gokitGrpc.Interceptor))
+		grpcServer = transport.NewGRPCServer(app.MakeServerEndpoints(s), logger)
+	)
+
+	go func() {
+		defer grpcListener.Close()
+		logger.Log("transport", "gRPC", "addr", *grpcAddr)
+		grpcSvc.RegisterServiceServer(baseServer, grpcServer)
+		errs <- baseServer.Serve(grpcListener)
 	}()
 
 	logger.Log("exit", <-errs)

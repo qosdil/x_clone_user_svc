@@ -2,6 +2,7 @@ package x_clone_user_srv
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -10,6 +11,7 @@ import (
 )
 
 type Repository interface {
+	Create(ctx context.Context, user User) (User, error)
 	Find(ctx context.Context) (users []UserResponse, err error)
 }
 
@@ -21,6 +23,17 @@ func NewMongoRepository(db *mongo.Database) Repository {
 	return &mongoRepository{
 		coll: db.Collection("users"),
 	}
+}
+
+func (r *mongoRepository) Create(ctx context.Context, user User) (User, error) {
+	user.CreatedAt = primitive.Timestamp{T: uint32(time.Now().Unix())}
+	result, err := r.coll.InsertOne(ctx, user)
+	if err != nil {
+		return user, err
+	}
+	insertedID, _ := result.InsertedID.(primitive.ObjectID)
+	user.ID = insertedID
+	return user, nil
 }
 
 func (r *mongoRepository) Find(ctx context.Context) (userResponses []UserResponse, err error) {

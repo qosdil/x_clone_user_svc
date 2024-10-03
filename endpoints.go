@@ -6,13 +6,22 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type Endpoints struct {
-	ListEndpoint endpoint.Endpoint
-}
-
 type listResponse struct {
 	Users []UserResponse `json:"users"`
 	Err   error          `json:"err"`
+}
+
+type Endpoints struct {
+	CreateEndpoint endpoint.Endpoint
+	ListEndpoint   endpoint.Endpoint
+}
+
+func MakeCreateEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(CreateRequest)
+		u, e := s.Create(ctx, req.User)
+		return CreateResponse{User: u, Err: e}, nil
+	}
 }
 
 func MakeListEndpoint(s Service) endpoint.Endpoint {
@@ -24,6 +33,7 @@ func MakeListEndpoint(s Service) endpoint.Endpoint {
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		ListEndpoint: MakeListEndpoint(s),
+		CreateEndpoint: MakeCreateEndpoint(s),
+		ListEndpoint:   MakeListEndpoint(s),
 	}
 }

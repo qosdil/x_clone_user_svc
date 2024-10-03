@@ -12,6 +12,13 @@ type loggingMiddleware struct {
 	logger log.Logger
 }
 
+func (mw loggingMiddleware) Create(ctx context.Context, user User) (UserResponse, error) {
+	defer func(begin time.Time) {
+		mw.logger.Log("method", "Create", "took", time.Since(begin), "err", nil)
+	}(time.Now())
+	return mw.next.Create(ctx, user)
+}
+
 func (mw loggingMiddleware) GetList(ctx context.Context) (users []UserResponse, err error) {
 	defer func(begin time.Time) {
 		mw.logger.Log("method", "GetList", "took", time.Since(begin), "err", err)

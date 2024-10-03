@@ -1,0 +1,19 @@
+// To generate from service.proto file: $ protoc --go_out=. --go-grpc_out=require_unimplemented_servers=false:. service.proto
+syntax = "proto3";
+option go_package = "grpc/service";
+package service;
+
+message CreateRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message CreateResponse {
+    string ID = 1;
+    string username = 2;
+    uint32 createdAt = 3;
+}
+
+service Service {
+    rpc Create (CreateRequest) returns (CreateResponse);
+}
