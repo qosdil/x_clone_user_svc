@@ -30,7 +30,7 @@ func decodeGRPCCreateRequest(_ context.Context, grpcReq interface{}) (interface{
 
 func encodeGRPCCreateResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(app.CreateResponse)
-	return &grpcSvc.CreateResponse{ID: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
+	return &grpcSvc.CreateResponse{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
 }
 
 func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceServer {

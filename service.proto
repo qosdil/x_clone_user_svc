@@ -9,9 +9,9 @@ message CreateRequest {
 }
 
 message CreateResponse {
-    string ID = 1;
+    string id = 1;
     string username = 2;
-    uint32 createdAt = 3;
+    uint32 created_at = 3;
 }
 
 service Service {
