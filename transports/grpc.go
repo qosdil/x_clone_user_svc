@@ -22,49 +22,37 @@ func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.Request) (*grpcSvc
 	return rep.(*grpcSvc.Response), nil
 }
 
-func (s *GrpcServer) GetByUsernamePassword(ctx context.Context, req *grpcSvc.GetByUsernamePasswordRequest) (*grpcSvc.GetByUsernamePasswordResponse, error) {
+func (s *GrpcServer) GetByUsernamePassword(ctx context.Context, req *grpcSvc.Request) (*grpcSvc.Response, error) {
 	_, rep, err := s.getByUsernamePassword.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*grpcSvc.GetByUsernamePasswordResponse), nil
+	return rep.(*grpcSvc.Response), nil
 }
 
-func decodeGRPCCreateRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+func decodeGrpcRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*grpcSvc.Request)
 	return app.Request{
 		Username: req.Username, Password: req.Password,
 	}, nil
 }
 
-func encodeGRPCCreateResponse(_ context.Context, response interface{}) (interface{}, error) {
+func encodeGrpcResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(app.Response)
 	return &grpcSvc.Response{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
-}
-
-func decodeGRPCGetByUsernamePasswordRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*grpcSvc.GetByUsernamePasswordRequest)
-	return app.Request{
-		Username: req.Username, Password: req.Password,
-	}, nil
-}
-
-func encodeGRPCGetByUsernamePasswordResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(app.Response)
-	return &grpcSvc.GetByUsernamePasswordResponse{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
 }
 
 func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceServer {
 	return &GrpcServer{
 		create: grpctransport.NewServer(
 			endpoints.CreateEndpoint,
-			decodeGRPCCreateRequest,
-			encodeGRPCCreateResponse,
+			decodeGrpcRequest,
+			encodeGrpcResponse,
 		),
 		getByUsernamePassword: grpctransport.NewServer(
 			endpoints.GetByUsernamePasswordEndpoint,
-			decodeGRPCGetByUsernamePasswordRequest,
-			encodeGRPCGetByUsernamePasswordResponse,
+			decodeGrpcRequest,
+			encodeGrpcResponse,
 		),
 	}
 }

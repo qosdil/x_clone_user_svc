@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
-	GetByUsernamePassword(ctx context.Context, in *GetByUsernamePasswordRequest, opts ...grpc.CallOption) (*GetByUsernamePasswordResponse, error)
+	GetByUsernamePassword(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 }
 
 type serviceClient struct {
@@ -50,8 +50,8 @@ func (c *serviceClient) Create(ctx context.Context, in *Request, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *serviceClient) GetByUsernamePassword(ctx context.Context, in *GetByUsernamePasswordRequest, opts ...grpc.CallOption) (*GetByUsernamePasswordResponse, error) {
-	out := new(GetByUsernamePasswordResponse)
+func (c *serviceClient) GetByUsernamePassword(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Service_GetByUsernamePassword_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (c *serviceClient) GetByUsernamePassword(ctx context.Context, in *GetByUser
 // for forward compatibility
 type ServiceServer interface {
 	Create(context.Context, *Request) (*Response, error)
-	GetByUsernamePassword(context.Context, *GetByUsernamePasswordRequest) (*GetByUsernamePasswordResponse, error)
+	GetByUsernamePassword(context.Context, *Request) (*Response, error)
 }
 
 // UnimplementedServiceServer should be embedded to have forward compatible implementations.
@@ -74,7 +74,7 @@ type UnimplementedServiceServer struct {
 func (UnimplementedServiceServer) Create(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedServiceServer) GetByUsernamePassword(context.Context, *GetByUsernamePasswordRequest) (*GetByUsernamePasswordResponse, error) {
+func (UnimplementedServiceServer) GetByUsernamePassword(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetByUsernamePassword not implemented")
 }
 
@@ -108,7 +108,7 @@ func _Service_Create_Handler(srv interface{}, ctx context.Context, dec func(inte
 }
 
 func _Service_GetByUsernamePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByUsernamePasswordRequest)
+	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func _Service_GetByUsernamePassword_Handler(srv interface{}, ctx context.Context
 		FullMethod: Service_GetByUsernamePassword_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).GetByUsernamePassword(ctx, req.(*GetByUsernamePasswordRequest))
+		return srv.(ServiceServer).GetByUsernamePassword(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
