@@ -20,7 +20,7 @@ func MakeCreateEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(Request)
 		u, e := s.Create(ctx, User{Username: req.Username, Password: req.Password})
-		return CreateResponse{User: u, Err: e}, nil
+		return Response{User: u, Err: e}, nil
 	}
 }
 

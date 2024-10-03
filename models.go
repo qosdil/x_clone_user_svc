@@ -2,14 +2,14 @@ package x_clone_user_srv
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type CreateResponse struct {
-	User UserSecureResponse `json:"user"`
-	Err  error              `json:"err"`
-}
-
 type Request struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type Response struct {
+	User UserSecureResponse `json:"user"`
+	Err  error              `json:"err"`
 }
 
 type User struct {

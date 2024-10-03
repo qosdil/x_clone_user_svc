@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
-	Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*CreateResponse, error)
+	Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
 }
 
 type serviceClient struct {
@@ -39,8 +39,8 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*CreateResponse, error) {
-	out := new(CreateResponse)
+func (c *serviceClient) Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
 	err := c.cc.Invoke(ctx, Service_Create_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -52,14 +52,14 @@ func (c *serviceClient) Create(ctx context.Context, in *Request, opts ...grpc.Ca
 // All implementations should embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
-	Create(context.Context, *Request) (*CreateResponse, error)
+	Create(context.Context, *Request) (*Response, error)
 }
 
 // UnimplementedServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedServiceServer struct {
 }
 
-func (UnimplementedServiceServer) Create(context.Context, *Request) (*CreateResponse, error) {
+func (UnimplementedServiceServer) Create(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 

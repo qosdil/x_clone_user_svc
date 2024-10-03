@@ -3,7 +3,7 @@ syntax = "proto3";
 option go_package = "grpc/service";
 package service;
 
-message CreateResponse {
+message Response {
     string id = 1;
     string username = 2;
     uint32 created_at = 3;
@@ -15,5 +15,5 @@ message Request {
 }
 
 service Service {
-    rpc Create (Request) returns (CreateResponse);
+    rpc Create (Request) returns (Response);
 }

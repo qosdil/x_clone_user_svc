@@ -13,12 +13,12 @@ type GrpcServer struct {
 	create grpctransport.Handler
 }
 
-func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.Request) (*grpcSvc.CreateResponse, error) {
+func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.Request) (*grpcSvc.Response, error) {
 	_, rep, err := s.create.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*grpcSvc.CreateResponse), nil
+	return rep.(*grpcSvc.Response), nil
 }
 
 func decodeGRPCCreateRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -29,8 +29,8 @@ func decodeGRPCCreateRequest(_ context.Context, grpcReq interface{}) (interface{
 }
 
 func encodeGRPCCreateResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(app.CreateResponse)
-	return &grpcSvc.CreateResponse{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
+	resp := response.(app.Response)
+	return &grpcSvc.Response{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
 }
 
 func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceServer {
