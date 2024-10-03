@@ -2,8 +2,8 @@ package transport
 
 import (
 	"context"
-	app "x_clone_user_srv"
-	grpcSvc "x_clone_user_srv/grpc/service"
+	app "x_clone_user_svc"
+	grpcSvc "x_clone_user_svc/grpc/service"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-kit/log"

@@ -1,4 +1,4 @@
-package x_clone_user_srv
+package x_clone_user_svc
 
 import (
 	"context"
