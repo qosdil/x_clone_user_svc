@@ -2,6 +2,7 @@ package x_clone_user_svc
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +14,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, user User) (User, error)
 	Find(ctx context.Context) (users []UserSecureResponse, err error)
+	FirstByUsername(ctx context.Context, username string) (user User, err error)
 }
 
 type mongoRepository struct {
@@ -64,4 +66,15 @@ func (r *mongoRepository) Find(ctx context.Context) (resp []UserSecureResponse, 
 	}
 
 	return resp, nil
+}
+
+func (r *mongoRepository) FirstByUsername(ctx context.Context, username string) (user User, err error) {
+	err = r.coll.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err == mongo.ErrNoDocuments {
+		return User{}, errors.New("not found")
+	}
+	if err != nil {
+		return User{}, err
+	}
+	return user, nil
 }

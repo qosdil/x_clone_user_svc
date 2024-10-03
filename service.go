@@ -2,7 +2,7 @@ package x_clone_user_svc
 
 import (
 	"context"
-	"time"
+	"errors"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,10 +22,17 @@ func NewService(repo Repository) Service {
 }
 
 func (s *service) GetByUsernamePassword(ctx context.Context, username string, password string) (UserSecureResponse, error) {
+	user, err := s.repo.FirstByUsername(ctx, username)
+	if err != nil {
+		return UserSecureResponse{}, err
+	}
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+		return UserSecureResponse{}, errors.New("invalid password")
+	}
 	return UserSecureResponse{
-		ID:        "aaabbb",
-		Username:  username,
-		CreatedAt: uint32(time.Now().Unix()),
+		ID:        user.ID.Hex(),
+		Username:  user.Username,
+		CreatedAt: user.CreatedAt.T,
 	}, nil
 }
 
