@@ -1,4 +1,5 @@
 # X-Clone: User Service
+v0.5.0
 
 ## Development
 You can use `air-verse/air` for live-reload on development:
