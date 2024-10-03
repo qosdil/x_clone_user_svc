@@ -2,6 +2,8 @@ package x_clone_user_srv
 
 import (
 	"context"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Service interface {
@@ -22,6 +24,8 @@ func (s *service) GetList(ctx context.Context) (users []UserResponse, err error)
 }
 
 func (s *service) Create(ctx context.Context, user User) (UserResponse, error) {
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	user.Password = string(hashedPassword)
 	user, err := s.repo.Create(ctx, user)
 	if err != nil {
 		return UserResponse{}, err
