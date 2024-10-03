@@ -12,7 +12,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, user User) (User, error)
-	Find(ctx context.Context) (users []UserResponse, err error)
+	Find(ctx context.Context) (users []UserSecureResponse, err error)
 }
 
 type mongoRepository struct {
@@ -36,7 +36,7 @@ func (r *mongoRepository) Create(ctx context.Context, user User) (User, error) {
 	return user, nil
 }
 
-func (r *mongoRepository) Find(ctx context.Context) (userResponses []UserResponse, err error) {
+func (r *mongoRepository) Find(ctx context.Context) (resp []UserSecureResponse, err error) {
 	projection := bson.D{
 		{Key: "username", Value: 1},
 		{Key: "created_at", Value: 1},
@@ -52,7 +52,7 @@ func (r *mongoRepository) Find(ctx context.Context) (userResponses []UserRespons
 		if err := cursor.Decode(&user); err != nil {
 			return nil, err
 		}
-		userResponses = append(userResponses, UserResponse{
+		resp = append(resp, UserSecureResponse{
 			ID:        user.ID.Hex(),
 			Username:  user.Username,
 			CreatedAt: user.CreatedAt.T,
@@ -63,5 +63,5 @@ func (r *mongoRepository) Find(ctx context.Context) (userResponses []UserRespons
 		return nil, err
 	}
 
-	return userResponses, nil
+	return resp, nil
 }

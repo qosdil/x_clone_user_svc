@@ -7,8 +7,8 @@ import (
 )
 
 type listResponse struct {
-	Users []UserResponse `json:"users"`
-	Err   error          `json:"err"`
+	Users []UserSecureResponse `json:"users"`
+	Err   error                `json:"err"`
 }
 
 type Endpoints struct {

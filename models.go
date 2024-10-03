@@ -7,8 +7,8 @@ type CreateRequest struct {
 }
 
 type CreateResponse struct {
-	User UserResponse `json:"user"`
-	Err  error        `json:"err"`
+	User UserSecureResponse `json:"user"`
+	Err  error              `json:"err"`
 }
 
 type User struct {
@@ -18,7 +18,7 @@ type User struct {
 	CreatedAt primitive.Timestamp `bson:"created_at" json:"created_at"`
 }
 
-type UserResponse struct {
+type UserSecureResponse struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
 	CreatedAt uint32 `json:"created_at"`
