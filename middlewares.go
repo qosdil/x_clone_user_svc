@@ -19,7 +19,7 @@ func (mw loggingMiddleware) Create(ctx context.Context, user User) (UserSecureRe
 	return mw.next.Create(ctx, user)
 }
 
-func (mw loggingMiddleware) GetByUsernamePassword(ctx context.Context, username string, password string) (UserSecureResponse, error) {
+func (mw loggingMiddleware) GetByUsernamePassword(ctx context.Context, username string, password string) (User, error) {
 	defer func(begin time.Time) {
 		mw.logger.Log("method", "GetByUsernamePassword", "took", time.Since(begin), "err", nil)
 	}(time.Now())

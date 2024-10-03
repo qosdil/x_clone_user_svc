@@ -19,6 +19,11 @@ type User struct {
 	CreatedAt primitive.Timestamp `bson:"created_at" json:"created_at"`
 }
 
+type UserNotSecureResponse struct {
+	User User  `json:"user"`
+	Err  error `json:"err"`
+}
+
 type UserSecureResponse struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`

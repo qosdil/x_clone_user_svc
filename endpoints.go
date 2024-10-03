@@ -29,7 +29,7 @@ func MakeGetByUsernamePasswordEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(Request)
 		u, e := s.GetByUsernamePassword(ctx, req.Username, req.Password)
-		return Response{User: u, Err: e}, nil
+		return UserNotSecureResponse{User: u, Err: e}, nil
 	}
 }
 

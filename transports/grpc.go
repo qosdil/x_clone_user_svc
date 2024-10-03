@@ -42,6 +42,13 @@ func encodeGrpcResponse(_ context.Context, response interface{}) (interface{}, e
 	return &grpcSvc.Response{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
 }
 
+func encodeGrpcGetByUsernamePasswordResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(app.UserNotSecureResponse)
+	return &grpcSvc.Response{
+		Id: resp.User.ID.Hex(), Username: resp.User.Username,
+		Password: resp.User.Password, CreatedAt: resp.User.CreatedAt.T}, nil
+}
+
 func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceServer {
 	return &GrpcServer{
 		create: grpctransport.NewServer(
@@ -52,7 +59,7 @@ func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceSe
 		getByUsernamePassword: grpctransport.NewServer(
 			endpoints.GetByUsernamePasswordEndpoint,
 			decodeGrpcRequest,
-			encodeGrpcResponse,
+			encodeGrpcGetByUsernamePasswordResponse,
 		),
 	}
 }

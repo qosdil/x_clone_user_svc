@@ -2,14 +2,11 @@ package x_clone_user_svc
 
 import (
 	"context"
-	"errors"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Service interface {
 	Create(ctx context.Context, user User) (UserSecureResponse, error)
-	GetByUsernamePassword(ctx context.Context, username string, password string) (UserSecureResponse, error)
+	GetByUsernamePassword(ctx context.Context, username string, password string) (User, error)
 	GetList(ctx context.Context) (users []UserSecureResponse, err error)
 }
 
@@ -21,19 +18,12 @@ func NewService(repo Repository) Service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetByUsernamePassword(ctx context.Context, username string, password string) (UserSecureResponse, error) {
+func (s *service) GetByUsernamePassword(ctx context.Context, username string, password string) (User, error) {
 	user, err := s.repo.FirstByUsername(ctx, username)
 	if err != nil {
-		return UserSecureResponse{}, err
+		return User{}, err
 	}
-	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
-		return UserSecureResponse{}, errors.New("invalid password")
-	}
-	return UserSecureResponse{
-		ID:        user.ID.Hex(),
-		Username:  user.Username,
-		CreatedAt: user.CreatedAt.T,
-	}, nil
+	return user, nil
 }
 
 func (s *service) GetList(ctx context.Context) (users []UserSecureResponse, err error) {
@@ -41,8 +31,6 @@ func (s *service) GetList(ctx context.Context) (users []UserSecureResponse, err 
 }
 
 func (s *service) Create(ctx context.Context, user User) (UserSecureResponse, error) {
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	user.Password = string(hashedPassword)
 	user, err := s.repo.Create(ctx, user)
 	if err != nil {
 		return UserSecureResponse{}, err
