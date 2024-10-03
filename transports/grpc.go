@@ -10,7 +10,8 @@ import (
 )
 
 type GrpcServer struct {
-	create grpctransport.Handler
+	create                grpctransport.Handler
+	getByUsernamePassword grpctransport.Handler
 }
 
 func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.Request) (*grpcSvc.Response, error) {
@@ -19,6 +20,14 @@ func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.Request) (*grpcSvc
 		return nil, err
 	}
 	return rep.(*grpcSvc.Response), nil
+}
+
+func (s *GrpcServer) GetByUsernamePassword(ctx context.Context, req *grpcSvc.GetByUsernamePasswordRequest) (*grpcSvc.GetByUsernamePasswordResponse, error) {
+	_, rep, err := s.getByUsernamePassword.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*grpcSvc.GetByUsernamePasswordResponse), nil
 }
 
 func decodeGRPCCreateRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
@@ -33,12 +42,29 @@ func encodeGRPCCreateResponse(_ context.Context, response interface{}) (interfac
 	return &grpcSvc.Response{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
 }
 
+func decodeGRPCGetByUsernamePasswordRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*grpcSvc.GetByUsernamePasswordRequest)
+	return app.Request{
+		Username: req.Username, Password: req.Password,
+	}, nil
+}
+
+func encodeGRPCGetByUsernamePasswordResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(app.Response)
+	return &grpcSvc.GetByUsernamePasswordResponse{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
+}
+
 func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceServer {
 	return &GrpcServer{
 		create: grpctransport.NewServer(
 			endpoints.CreateEndpoint,
 			decodeGRPCCreateRequest,
 			encodeGRPCCreateResponse,
+		),
+		getByUsernamePassword: grpctransport.NewServer(
+			endpoints.GetByUsernamePasswordEndpoint,
+			decodeGRPCGetByUsernamePasswordRequest,
+			encodeGRPCGetByUsernamePasswordResponse,
 		),
 	}
 }

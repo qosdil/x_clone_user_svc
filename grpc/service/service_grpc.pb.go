@@ -21,7 +21,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_Create_FullMethodName = "/service.Service/Create"
+	Service_Create_FullMethodName                = "/service.Service/Create"
+	Service_GetByUsernamePassword_FullMethodName = "/service.Service/GetByUsernamePassword"
 )
 
 // ServiceClient is the client API for Service service.
@@ -29,6 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	Create(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Response, error)
+	GetByUsernamePassword(ctx context.Context, in *GetByUsernamePasswordRequest, opts ...grpc.CallOption) (*GetByUsernamePasswordResponse, error)
 }
 
 type serviceClient struct {
@@ -48,11 +50,21 @@ func (c *serviceClient) Create(ctx context.Context, in *Request, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *serviceClient) GetByUsernamePassword(ctx context.Context, in *GetByUsernamePasswordRequest, opts ...grpc.CallOption) (*GetByUsernamePasswordResponse, error) {
+	out := new(GetByUsernamePasswordResponse)
+	err := c.cc.Invoke(ctx, Service_GetByUsernamePassword_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServer is the server API for Service service.
 // All implementations should embed UnimplementedServiceServer
 // for forward compatibility
 type ServiceServer interface {
 	Create(context.Context, *Request) (*Response, error)
+	GetByUsernamePassword(context.Context, *GetByUsernamePasswordRequest) (*GetByUsernamePasswordResponse, error)
 }
 
 // UnimplementedServiceServer should be embedded to have forward compatible implementations.
@@ -61,6 +73,9 @@ type UnimplementedServiceServer struct {
 
 func (UnimplementedServiceServer) Create(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedServiceServer) GetByUsernamePassword(context.Context, *GetByUsernamePasswordRequest) (*GetByUsernamePasswordResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetByUsernamePassword not implemented")
 }
 
 // UnsafeServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -92,6 +107,24 @@ func _Service_Create_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_GetByUsernamePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetByUsernamePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetByUsernamePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetByUsernamePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetByUsernamePassword(ctx, req.(*GetByUsernamePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _Service_Create_Handler,
+		},
+		{
+			MethodName: "GetByUsernamePassword",
+			Handler:    _Service_GetByUsernamePassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

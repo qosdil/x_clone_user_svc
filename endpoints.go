@@ -12,14 +12,23 @@ type listResponse struct {
 }
 
 type Endpoints struct {
-	CreateEndpoint endpoint.Endpoint
-	ListEndpoint   endpoint.Endpoint
+	CreateEndpoint                endpoint.Endpoint
+	GetByUsernamePasswordEndpoint endpoint.Endpoint
+	ListEndpoint                  endpoint.Endpoint
 }
 
 func MakeCreateEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(Request)
 		u, e := s.Create(ctx, User{Username: req.Username, Password: req.Password})
+		return Response{User: u, Err: e}, nil
+	}
+}
+
+func MakeGetByUsernamePasswordEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(Request)
+		u, e := s.GetByUsernamePassword(ctx, req.Username, req.Password)
 		return Response{User: u, Err: e}, nil
 	}
 }
@@ -33,7 +42,8 @@ func MakeListEndpoint(s Service) endpoint.Endpoint {
 
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
-		CreateEndpoint: MakeCreateEndpoint(s),
-		ListEndpoint:   MakeListEndpoint(s),
+		CreateEndpoint:                MakeCreateEndpoint(s),
+		GetByUsernamePasswordEndpoint: MakeGetByUsernamePasswordEndpoint(s),
+		ListEndpoint:                  MakeListEndpoint(s),
 	}
 }
