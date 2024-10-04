@@ -10,7 +10,7 @@ import (
 	"os/signal"
 	"syscall"
 	app "x_clone_user_svc"
-	config "x_clone_user_svc/config"
+	configs "x_clone_user_svc/configs"
 	grpcSvc "x_clone_user_svc/grpc/service"
 	transport "x_clone_user_svc/transports"
 
@@ -23,10 +23,10 @@ import (
 
 func main() {
 	// Load environment variables
-	config.LoadEnv()
+	configs.LoadEnv()
 
 	// Set up MongoDB connection
-	mongoURI := config.GetEnv("MONGODB_URI")
+	mongoURI := configs.GetEnv("MONGODB_URI")
 	clientOptions := options.Client().ApplyURI(mongoURI)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
@@ -34,11 +34,11 @@ func main() {
 	}
 	defer client.Disconnect(context.TODO())
 
-	db := client.Database(config.GetEnv("DB_NAME"))
+	db := client.Database(configs.GetEnv("DB_NAME"))
 	repo := app.NewMongoRepository(db)
 	var (
-		httpAddr = flag.String("http.addr", ":"+config.GetEnv("HTTP_PORT"), "HTTP listen address")
-		grpcAddr = flag.String("grpc-addr", ":"+config.GetEnv("GRPC_PORT"), "gRPC listen address")
+		httpAddr = flag.String("http.addr", ":"+configs.GetEnv("HTTP_PORT"), "HTTP listen address")
+		grpcAddr = flag.String("grpc-addr", ":"+configs.GetEnv("GRPC_PORT"), "gRPC listen address")
 	)
 	flag.Parse()
 
