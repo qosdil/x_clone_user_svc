@@ -12,6 +12,8 @@ import (
 	app "x_clone_user_svc"
 	configs "x_clone_user_svc/configs"
 	grpcSvc "x_clone_user_svc/grpc/service"
+	"x_clone_user_svc/repository/databases"
+	"x_clone_user_svc/service"
 	transport "x_clone_user_svc/transports"
 
 	gokitGrpc "github.com/go-kit/kit/transport/grpc"
@@ -35,7 +37,7 @@ func main() {
 	defer client.Disconnect(context.TODO())
 
 	db := client.Database(configs.GetEnv("DB_NAME"))
-	repo := app.NewMongoRepository(db)
+	repo := databases.NewMongoRepository(db)
 	var (
 		httpAddr = flag.String("http.addr", ":"+configs.GetEnv("HTTP_PORT"), "HTTP listen address")
 		grpcAddr = flag.String("grpc-addr", ":"+configs.GetEnv("GRPC_PORT"), "gRPC listen address")
@@ -49,9 +51,9 @@ func main() {
 		logger = log.With(logger, "caller", log.DefaultCaller)
 	}
 
-	var s app.Service
+	var s service.Service
 	{
-		s = app.NewService(repo)
+		s = service.NewService(repo)
 		s = app.LoggingMiddleware(logger)(s)
 	}
 
