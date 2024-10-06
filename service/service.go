@@ -8,7 +8,7 @@ import (
 
 type Service interface {
 	Create(ctx context.Context, user model.User) (model.User, error)
-	GetByUsernamePassword(ctx context.Context, username string, password string) (model.User, error)
+	GetByUsername(ctx context.Context, username string) (model.User, error)
 	GetList(ctx context.Context) (users []model.SecureUser, err error)
 }
 
@@ -20,7 +20,7 @@ func NewService(repo repository.Repository) Service {
 	return &service{repo: repo}
 }
 
-func (s *service) GetByUsernamePassword(ctx context.Context, username string, password string) (model.User, error) {
+func (s *service) GetByUsername(ctx context.Context, username string) (model.User, error) {
 	return s.repo.FirstByUsername(ctx, username)
 }
 

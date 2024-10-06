@@ -8,43 +8,41 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-type Request struct {
+type CreateRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-type Response struct {
-	User UserSecureResponse `json:"user"`
-	Err  error              `json:"err"`
+type GetByUsernameRequest struct {
+	Username string `json:"username"`
 }
 
-type UserNotSecureResponse struct {
+type listResponse struct {
+	Users []model.SecureUser `json:"users"`
+	Err   error              `json:"err"`
+}
+
+type Response struct {
 	User model.User `json:"user"`
 	Err  error      `json:"err"`
 }
 
-type UserSecureResponse struct {
-	ID        string `json:"id"`
-	Username  string `json:"username"`
-	CreatedAt uint32 `json:"created_at"`
-}
-
-type listResponse struct {
-	Users []UserSecureResponse `json:"users"`
-	Err   error                `json:"err"`
+type SecureResponse struct {
+	User model.SecureUser `json:"user"`
+	Err  error            `json:"err"`
 }
 
 type Endpoints struct {
-	CreateEndpoint                endpoint.Endpoint
-	GetByUsernamePasswordEndpoint endpoint.Endpoint
-	ListEndpoint                  endpoint.Endpoint
+	CreateEndpoint        endpoint.Endpoint
+	GetByUsernameEndpoint endpoint.Endpoint
+	ListEndpoint          endpoint.Endpoint
 }
 
 func MakeCreateEndpoint(s service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(Request)
+		req := request.(CreateRequest)
 		u, e := s.Create(ctx, model.User{Username: req.Username, Password: req.Password})
-		return Response{User: UserSecureResponse{
+		return SecureResponse{User: model.SecureUser{
 			ID:        u.ID,
 			Username:  u.Username,
 			CreatedAt: u.CreatedAt,
@@ -54,18 +52,18 @@ func MakeCreateEndpoint(s service.Service) endpoint.Endpoint {
 
 func MakeGetByUsernamePasswordEndpoint(s service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(Request)
-		u, e := s.GetByUsernamePassword(ctx, req.Username, req.Password)
-		return UserNotSecureResponse{User: u, Err: e}, nil
+		req := request.(GetByUsernameRequest)
+		u, e := s.GetByUsername(ctx, req.Username)
+		return Response{User: u, Err: e}, nil
 	}
 }
 
 func MakeListEndpoint(s service.Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		users, err := s.GetList(ctx)
-		var respUsers []UserSecureResponse
+		var respUsers []model.SecureUser
 		for _, user := range users {
-			respUsers = append(respUsers, UserSecureResponse{
+			respUsers = append(respUsers, model.SecureUser{
 				ID:        user.ID,
 				Username:  user.Username,
 				CreatedAt: user.CreatedAt,
@@ -77,8 +75,8 @@ func MakeListEndpoint(s service.Service) endpoint.Endpoint {
 
 func MakeServerEndpoints(s service.Service) Endpoints {
 	return Endpoints{
-		CreateEndpoint:                MakeCreateEndpoint(s),
-		GetByUsernamePasswordEndpoint: MakeGetByUsernamePasswordEndpoint(s),
-		ListEndpoint:                  MakeListEndpoint(s),
+		CreateEndpoint:        MakeCreateEndpoint(s),
+		GetByUsernameEndpoint: MakeGetByUsernamePasswordEndpoint(s),
+		ListEndpoint:          MakeListEndpoint(s),
 	}
 }

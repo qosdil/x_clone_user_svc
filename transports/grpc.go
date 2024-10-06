@@ -10,56 +10,61 @@ import (
 )
 
 type GrpcServer struct {
-	create                grpctransport.Handler
-	getByUsernamePassword grpctransport.Handler
+	create        grpctransport.Handler
+	getByUsername grpctransport.Handler
 }
 
-func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.Request) (*grpcSvc.Response, error) {
+func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.CreateRequest) (*grpcSvc.SecureResponse, error) {
 	_, rep, err := s.create.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
-	return rep.(*grpcSvc.Response), nil
+	return rep.(*grpcSvc.SecureResponse), nil
 }
 
-func (s *GrpcServer) GetByUsernamePassword(ctx context.Context, req *grpcSvc.Request) (*grpcSvc.Response, error) {
-	_, rep, err := s.getByUsernamePassword.ServeGRPC(ctx, req)
+func (s *GrpcServer) GetByUsername(ctx context.Context, req *grpcSvc.GetByUsernameRequest) (*grpcSvc.Response, error) {
+	_, rep, err := s.getByUsername.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*grpcSvc.Response), nil
 }
 
-func decodeGrpcRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
-	req := grpcReq.(*grpcSvc.Request)
-	return app.Request{
+func decodeGrpcCreateRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*grpcSvc.CreateRequest)
+	return app.CreateRequest{
 		Username: req.Username, Password: req.Password,
 	}, nil
 }
 
-func encodeGrpcResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(app.Response)
-	return &grpcSvc.Response{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
+func decodeGrpcGetByUsernameRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*grpcSvc.GetByUsernameRequest)
+	return app.GetByUsernameRequest{Username: req.Username}, nil
 }
 
-func encodeGrpcGetByUsernamePasswordResponse(_ context.Context, response interface{}) (interface{}, error) {
-	resp := response.(app.UserNotSecureResponse)
+func encodeGrpcGetByUsernameResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(app.Response)
 	return &grpcSvc.Response{
 		Id: resp.User.ID, Username: resp.User.Username,
 		Password: resp.User.Password, CreatedAt: resp.User.CreatedAt}, nil
+}
+
+func encodeGrpcCreateResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(app.SecureResponse)
+	return &grpcSvc.SecureResponse{Id: resp.User.ID, Username: resp.User.Username, CreatedAt: resp.User.CreatedAt}, nil
 }
 
 func NewGRPCServer(endpoints app.Endpoints, logger log.Logger) grpcSvc.ServiceServer {
 	return &GrpcServer{
 		create: grpctransport.NewServer(
 			endpoints.CreateEndpoint,
-			decodeGrpcRequest,
-			encodeGrpcResponse,
+			decodeGrpcCreateRequest,
+			encodeGrpcCreateResponse,
 		),
-		getByUsernamePassword: grpctransport.NewServer(
-			endpoints.GetByUsernamePasswordEndpoint,
-			decodeGrpcRequest,
-			encodeGrpcGetByUsernamePasswordResponse,
+		getByUsername: grpctransport.NewServer(
+			endpoints.GetByUsernameEndpoint,
+			decodeGrpcGetByUsernameRequest,
+			encodeGrpcGetByUsernameResponse,
 		),
 	}
 }

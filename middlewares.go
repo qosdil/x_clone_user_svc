@@ -21,11 +21,11 @@ func (mw loggingMiddleware) Create(ctx context.Context, user model.User) (model.
 	return mw.next.Create(ctx, user)
 }
 
-func (mw loggingMiddleware) GetByUsernamePassword(ctx context.Context, username string, password string) (model.User, error) {
+func (mw loggingMiddleware) GetByUsername(ctx context.Context, username string) (model.User, error) {
 	defer func(begin time.Time) {
-		mw.logger.Log("method", "GetByUsernamePassword", "took", time.Since(begin), "err", nil)
+		mw.logger.Log("method", "GetByUsername", "took", time.Since(begin), "err", nil)
 	}(time.Now())
-	return mw.next.GetByUsernamePassword(ctx, username, password)
+	return mw.next.GetByUsername(ctx, username)
 }
 
 func (mw loggingMiddleware) GetList(ctx context.Context) (users []model.SecureUser, err error) {
