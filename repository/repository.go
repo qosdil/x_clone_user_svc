@@ -2,7 +2,8 @@ package repository
 
 import (
 	"context"
-	"x_clone_user_svc/model"
+
+	"github.com/qosdil/x_clone_user_svc/model"
 )
 
 type Repository interface {

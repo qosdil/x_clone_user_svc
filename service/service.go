@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"x_clone_user_svc/model"
-	"x_clone_user_svc/repository"
+
+	"github.com/qosdil/x_clone_user_svc/model"
+	"github.com/qosdil/x_clone_user_svc/repository"
 )
 
 type Service interface {

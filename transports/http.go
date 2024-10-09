@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	app "x_clone_user_svc"
-	"x_clone_user_svc/service"
+
+	app "github.com/qosdil/x_clone_user_svc"
+	"github.com/qosdil/x_clone_user_svc/service"
 
 	"github.com/go-kit/kit/transport"
 	httptransport "github.com/go-kit/kit/transport/http"

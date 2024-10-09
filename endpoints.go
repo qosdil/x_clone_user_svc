@@ -2,10 +2,10 @@ package x_clone_user_svc
 
 import (
 	"context"
-	"x_clone_user_svc/model"
-	"x_clone_user_svc/service"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/qosdil/x_clone_user_svc/model"
+	"github.com/qosdil/x_clone_user_svc/service"
 )
 
 type CreateRequest struct {

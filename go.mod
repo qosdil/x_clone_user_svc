@@ -1,4 +1,4 @@
-module x_clone_user_svc
+module github.com/qosdil/x_clone_user_svc
 
 go 1.22.3
 
