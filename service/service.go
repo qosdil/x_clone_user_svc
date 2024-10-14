@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"github.com/qosdil/x_clone_user_svc/model"
 	"github.com/qosdil/x_clone_user_svc/repository"
@@ -30,5 +31,6 @@ func (s *service) GetList(ctx context.Context) (users []model.SecureUser, err er
 }
 
 func (s *service) Create(ctx context.Context, user model.User) (model.User, error) {
+	user.Username = strings.ToLower(user.Username)
 	return s.repo.Create(ctx, user)
 }
