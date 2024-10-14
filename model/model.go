@@ -1,5 +1,10 @@
 package model
 
+var (
+	// Errors map error codes to error messages
+	Errors = map[string]string{}
+)
+
 type User struct {
 	ID        string `json:"id"`
 	Username  string `json:"username"`
