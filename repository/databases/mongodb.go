@@ -49,8 +49,11 @@ func (r *mongoRepository) Create(ctx context.Context, user model.User) (model.Us
 		CreatedAt: primitive.Timestamp{T: user.CreatedAt},
 	}
 	result, err := r.coll.InsertOne(ctx, repoUser)
+	if mongo.IsDuplicateKeyError(err) {
+		return model.User{}, model.ErrCodeUsernameNotAvailable
+	}
 	if err != nil {
-		return user, err
+		return model.User{}, err
 	}
 	insertedID, _ := result.InsertedID.(primitive.ObjectID)
 	user.ID = insertedID.Hex()

@@ -46,7 +46,7 @@ func MakeCreateEndpoint(s service.Service) endpoint.Endpoint {
 			ID:        u.ID,
 			Username:  u.Username,
 			CreatedAt: u.CreatedAt,
-		}, Err: e}, nil
+		}, Err: e}, e
 	}
 }
 

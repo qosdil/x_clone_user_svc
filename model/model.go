@@ -1,8 +1,14 @@
 package model
 
+import "errors"
+
 var (
+	ErrCodeUsernameNotAvailable = errors.New("username_not_available")
+
 	// Errors map error codes to error messages
-	Errors = map[string]string{}
+	Errors = map[string]string{
+		ErrCodeUsernameNotAvailable.Error(): "username not available",
+	}
 )
 
 type User struct {

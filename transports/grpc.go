@@ -5,6 +5,9 @@ import (
 
 	app "github.com/qosdil/x_clone_user_svc"
 	grpcSvc "github.com/qosdil/x_clone_user_svc/grpc/service"
+	"github.com/qosdil/x_clone_user_svc/model"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 	"github.com/go-kit/log"
@@ -17,6 +20,9 @@ type GrpcServer struct {
 
 func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.CreateRequest) (*grpcSvc.SecureResponse, error) {
 	_, rep, err := s.create.ServeGRPC(ctx, req)
+	if err == model.ErrCodeUsernameNotAvailable {
+		return nil, status.Error(codes.AlreadyExists, model.ErrCodeUsernameNotAvailable.Error())
+	}
 	if err != nil {
 		return nil, err
 	}
