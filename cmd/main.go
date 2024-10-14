@@ -37,7 +37,11 @@ func main() {
 	defer client.Disconnect(context.TODO())
 
 	db := client.Database(configs.GetEnv("DB_NAME"))
-	repo := databases.NewMongoRepository(db)
+	repo, err := databases.NewMongoRepository(db)
+	if err != nil {
+		panic(err)
+	}
+
 	var (
 		httpAddr = flag.String("http.addr", ":"+configs.GetEnv("HTTP_PORT"), "HTTP listen address")
 		grpcAddr = flag.String("grpc-addr", ":"+configs.GetEnv("GRPC_PORT"), "gRPC listen address")

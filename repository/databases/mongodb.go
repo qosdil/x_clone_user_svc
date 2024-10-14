@@ -17,10 +17,21 @@ type mongoRepository struct {
 	coll *mongo.Collection
 }
 
-func NewMongoRepository(db *mongo.Database) repository.Repository {
-	return &mongoRepository{
-		coll: db.Collection("users"),
+func NewMongoRepository(db *mongo.Database) (repository.Repository, error) {
+	coll := db.Collection("users")
+
+	// Create the unique index on "username" field
+	_, err := coll.Indexes().CreateOne(context.Background(), mongo.IndexModel{
+		Keys:    bson.D{{Key: "username", Value: 1}},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	return &mongoRepository{
+		coll: coll,
+	}, nil
 }
 
 type mongoRepoUser struct {
