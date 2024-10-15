@@ -21,7 +21,7 @@ type GrpcServer struct {
 func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.CreateRequest) (*grpcSvc.SecureResponse, error) {
 	_, rep, err := s.create.ServeGRPC(ctx, req)
 	if err == model.ErrCodeUsernameNotAvailable {
-		return nil, status.Error(codes.AlreadyExists, model.ErrCodeUsernameNotAvailable.Error())
+		return nil, status.Error(codes.AlreadyExists, model.Errors[model.ErrCodeUsernameNotAvailable.Error()])
 	}
 	if err != nil {
 		return nil, err
