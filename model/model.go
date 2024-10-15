@@ -1,15 +1,21 @@
 package model
 
-import "errors"
-
-var (
-	ErrCodeUsernameNotAvailable = errors.New("username_not_available")
-
-	// Errors map error codes to error messages
-	Errors = map[string]string{
-		ErrCodeUsernameNotAvailable.Error(): "username not available",
-	}
+const (
+	ErrCodeUsernameNotAvailable = "username_not_available"
 )
+
+type Error struct {
+	Code string
+}
+
+func (e Error) Error() string {
+	switch e.Code {
+	case ErrCodeUsernameNotAvailable:
+		return "username not available"
+	default:
+		return "unknown user error"
+	}
+}
 
 type User struct {
 	ID        string `json:"id"`

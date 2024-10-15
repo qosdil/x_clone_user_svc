@@ -50,7 +50,7 @@ func (r *mongoRepository) Create(ctx context.Context, user model.User) (model.Us
 	}
 	result, err := r.coll.InsertOne(ctx, repoUser)
 	if mongo.IsDuplicateKeyError(err) {
-		return model.User{}, model.ErrCodeUsernameNotAvailable
+		return model.User{}, &model.Error{Code: model.ErrCodeUsernameNotAvailable}
 	}
 	if err != nil {
 		return model.User{}, err

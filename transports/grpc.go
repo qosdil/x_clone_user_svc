@@ -18,10 +18,19 @@ type GrpcServer struct {
 	getByUsername grpctransport.Handler
 }
 
+func getStatusCode(modelCode string) codes.Code {
+	switch modelCode {
+	case model.ErrCodeUsernameNotAvailable:
+		return codes.AlreadyExists
+	default:
+		return codes.Unknown
+	}
+}
+
 func (s *GrpcServer) Create(ctx context.Context, req *grpcSvc.CreateRequest) (*grpcSvc.SecureResponse, error) {
 	_, rep, err := s.create.ServeGRPC(ctx, req)
-	if err == model.ErrCodeUsernameNotAvailable {
-		return nil, status.Error(codes.AlreadyExists, model.Errors[model.ErrCodeUsernameNotAvailable.Error()])
+	if modelErr, ok := err.(*model.Error); ok {
+		return nil, status.Error(getStatusCode(modelErr.Code), err.Error())
 	}
 	if err != nil {
 		return nil, err
