@@ -1,5 +1,5 @@
 # X-Clone: User Service
-v0.5.0
+v0.5.x
 
 ## About
 - Project's Readme: [X Clone](https://github.com/qosdil/x_clone)
